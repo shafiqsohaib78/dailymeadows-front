@@ -1,0 +1,20 @@
+#write-article-editor > .codex-editor .codex-editor__redactor {
+  padding-bottom: 3rem !important;
+}
+@media only screen and (max-width: 900px) {
+  .editor-section {
+    padding-right: 30px !important;
+    padding-left: 20px !important;
+  }
+}
+.ct--top {
+  display: none;
+}
+
+/* #write-article-editor
+  > .codex-editor
+  > .codex-editor__redactor
+  > .ce-block:first-child
+  > .ce-block__content {
+  border-bottom: 1px solid #e6e6e6 !important;
+} */

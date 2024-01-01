@@ -1,0 +1,64 @@
+.loader {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: 0 auto;
+}
+
+.rotate {
+  animation: rotation 8s infinite linear;
+  width: 60px;
+}
+
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
+
+@media only screen and (min-width: 1080px) {
+  .loader {
+    position: absolute;
+    left: 47%;
+    top: 40%;
+    margin: 0 auto;
+  }
+}
+
+@media only screen and (max-width: 1079px) {
+  .loader {
+    position: absolute;
+    left: 47%;
+    top: 40%;
+    margin: 0 auto;
+  }
+}
+@media only screen and (max-width: 728px) {
+  .loader {
+    position: absolute;
+    left: 45%;
+    top: 52%;
+    margin: 0 auto;
+  }
+}
+
+@media only screen and (max-width: 550px) {
+  .loader {
+    position: absolute;
+    left: 45%;
+    top: 50%;
+    margin: 0 auto;
+  }
+}
+
+@media only screen and (max-width: 400px) {
+  .loader {
+    position: absolute;
+    left: 43%;
+    top: 50%;
+    margin: 0 auto;
+  }
+}
