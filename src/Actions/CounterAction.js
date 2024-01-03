@@ -1,4 +1,5 @@
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export const loadUser = () => (dispatch, getState) => {
   // USER LOADING
@@ -69,6 +70,23 @@ export const login = (data) => (dispatch) => {
     })
 
     .catch((err) => {
+      console.log(err.response.data.error);
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener("mouseenter", Swal.stopTimer);
+          toast.addEventListener("mouseleave", Swal.resumeTimer);
+        },
+      });
+
+      Toast.fire({
+        icon: "error",
+        title: err.response.data.error,
+      });
       dispatch({
         type: "LOGIN_FAIL",
       });

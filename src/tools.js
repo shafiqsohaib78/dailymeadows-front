@@ -12,8 +12,10 @@ import InlineCode from "@editorjs/inline-code";
 import SimpleImage from "@editorjs/simple-image";
 import LinkTool from "@editorjs/link";
 import Warning from "@editorjs/warning";
+import Paragraph from "@editorjs/paragraph";
 // import Attaches from "@editorjs/attaches";
-import AnyButton from "@editorjs/editorjs-button";
+// import AnyButton from "@editorjs/editorjs-button";
+import AnyButton from "editorjs-button";
 
 export const EDITOR_JS_TOOLS = {
   embed: {
@@ -42,6 +44,7 @@ export const EDITOR_JS_TOOLS = {
       },
     },
   },
+
   quote: Quote,
   table: Table,
   marker: Marker,
@@ -55,6 +58,8 @@ export const EDITOR_JS_TOOLS = {
   delimiter: Delimiter,
   inlineCode: InlineCode,
   paragraph: {
+    class: Paragraph,
+    inlineToolbar: true,
     config: {
       placeholder: "Write your article's detail here...",
     },

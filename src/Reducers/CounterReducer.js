@@ -23,7 +23,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
 
-        user: action.payload.user,
+        user: action.payload,
         isAuthenticated: true,
         isRendered: true,
         isLoading: false,

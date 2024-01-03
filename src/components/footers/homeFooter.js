@@ -2,8 +2,15 @@ import React from "react";
 import { Link } from "gatsby";
 import "../../css/footer.css";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import { shallowEqual, useSelector } from "react-redux";
 
 const Footer = () => {
+  const { isAuthenticated } = useSelector(
+    (state) => ({
+      isAuthenticated: state.isAuthenticated,
+    }),
+    shallowEqual
+  );
   return (
     <React.Fragment>
       <footer className="footer" id="footer">
@@ -51,35 +58,38 @@ const Footer = () => {
             </form>
           </div>
         </div> */}
-        <div className="footer-login">
-          <div className="footer-login-inner">
-            <div className="footer-login-icon">
-              <svg
-                className="user-icon"
-                width="24"
-                height="24"
-                viewBox="0 0 64 64"
-                fill="#ffffff"
-                tabindex="0"
-                focusable="true"
-                xmlns="https://www.w3.org/2000/svg"
-                aria-labelledby="userIconTitle"
-                role="img"
-                style={{ outline: 0 }}
-              >
-                <title id="userIconTitle">User Login</title>
-                <path
-                  fill-rule="evenodd"
-                  d="M32,59.7c-7.9,0-15.5-3.4-20.7-9.3c0.8-1.5,2-2.7,3.4-3.5c4.2-2.5,10.4-3.9,16.9-3.9s12.6,1.4,16.9,3.9 c1.7,0.9,3,2.3,3.6,4.1C47,56.5,39.6,59.7,32,59.7 M36.9,36.7c-5.1,2.9-11.6,1.1-14.5-4c-1.8-3.3-1.8-7.2,0-10.4 c0.9-1.7,2.3-3.3,4.1-4.1c5.2-2.8,11.7-0.9,14.5,4.3c1.7,3.1,1.7,7.1,0,10.2C40,34.4,38.6,35.8,36.9,36.7 M42.3,6.2 c7.5,2.7,13.3,8.8,15.8,16.3c2.9,8.2,1.8,17.5-3,24.8c-1.1-1.7-2.6-3.1-4.3-4.1c-3.3-1.8-6.8-3-10.5-3.7c4.9-3.4,7.3-9.3,6.1-15.2 c-1.2-6-6-10.5-11.9-11.5c-8-1.5-15.8,3.7-17.4,11.7c-1.1,5.9,1.3,11.7,6.2,15.1c-3.7,0.7-7.4,1.8-10.6,3.7 c-1.5,0.9-2.9,2.1-3.9,3.5C5.7,42.3,4.3,37.2,4.3,32C4.3,13.5,22.8-1,42.3,6.2 M42.6,1.8C25.9-4,7.6,4.8,1.8,21.5 c-2.4,6.8-2.4,14.3,0,21.2c3,9.2,10.3,16.5,19.5,19.5c16.7,5.9,35-2.9,40.9-19.7c2.4-6.8,2.4-14.3,0-21.2 C59.2,12.1,52,4.9,42.6,1.8"
-                ></path>
-              </svg>
+        {!isAuthenticated && (
+          <div className="footer-login">
+            <div className="footer-login-inner">
+              <div className="footer-login-icon">
+                <svg
+                  className="user-icon"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 64 64"
+                  fill="#ffffff"
+                  tabindex="0"
+                  focusable="true"
+                  xmlns="https://www.w3.org/2000/svg"
+                  aria-labelledby="userIconTitle"
+                  role="img"
+                  style={{ outline: 0 }}
+                >
+                  <title id="userIconTitle">User Login</title>
+                  <path
+                    fill-rule="evenodd"
+                    d="M32,59.7c-7.9,0-15.5-3.4-20.7-9.3c0.8-1.5,2-2.7,3.4-3.5c4.2-2.5,10.4-3.9,16.9-3.9s12.6,1.4,16.9,3.9 c1.7,0.9,3,2.3,3.6,4.1C47,56.5,39.6,59.7,32,59.7 M36.9,36.7c-5.1,2.9-11.6,1.1-14.5-4c-1.8-3.3-1.8-7.2,0-10.4 c0.9-1.7,2.3-3.3,4.1-4.1c5.2-2.8,11.7-0.9,14.5,4.3c1.7,3.1,1.7,7.1,0,10.2C40,34.4,38.6,35.8,36.9,36.7 M42.3,6.2 c7.5,2.7,13.3,8.8,15.8,16.3c2.9,8.2,1.8,17.5-3,24.8c-1.1-1.7-2.6-3.1-4.3-4.1c-3.3-1.8-6.8-3-10.5-3.7c4.9-3.4,7.3-9.3,6.1-15.2 c-1.2-6-6-10.5-11.9-11.5c-8-1.5-15.8,3.7-17.4,11.7c-1.1,5.9,1.3,11.7,6.2,15.1c-3.7,0.7-7.4,1.8-10.6,3.7 c-1.5,0.9-2.9,2.1-3.9,3.5C5.7,42.3,4.3,37.2,4.3,32C4.3,13.5,22.8-1,42.3,6.2 M42.6,1.8C25.9-4,7.6,4.8,1.8,21.5 c-2.4,6.8-2.4,14.3,0,21.2c3,9.2,10.3,16.5,19.5,19.5c16.7,5.9,35-2.9,40.9-19.7c2.4-6.8,2.4-14.3,0-21.2 C59.2,12.1,52,4.9,42.6,1.8"
+                  ></path>
+                </svg>
+              </div>
+              <Link to="/login" className="footer-login-text">
+                Staff Log In
+              </Link>
             </div>
-            <Link to="/login" className="footer-login-text">
-              Staff Log In
-            </Link>
+            <hr className="footer-divider"></hr>
           </div>
-          <hr className="footer-divider"></hr>
-        </div>
+        )}
+
         <aside style={{ display: "block" }}>
           <div className="footer-links-sec">
             <div className="footer-links-sec-inner">
@@ -209,21 +219,23 @@ const Footer = () => {
                   </ul>
                 </div>
               </div>
-              <div className="follow-share-right-login">
-                <div className="follow-share-right-login-divider"></div>
-                <div className="follow-share-right-login-cont">
-                  <div className="follow-share-right-login-cont-inner">
-                    <button className="follow-share-right-login-button">
-                      <Link
-                        to="/login"
-                        className="follow-share-right-login-text"
-                      >
-                        Staff Log In
-                      </Link>
-                    </button>
+              {!isAuthenticated && (
+                <div className="follow-share-right-login">
+                  <div className="follow-share-right-login-divider"></div>
+                  <div className="follow-share-right-login-cont">
+                    <div className="follow-share-right-login-cont-inner">
+                      <button className="follow-share-right-login-button">
+                        <Link
+                          to="/login"
+                          className="follow-share-right-login-text"
+                        >
+                          Staff Log In
+                        </Link>
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

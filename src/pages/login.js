@@ -4,9 +4,10 @@ import Footer from "../components/footers/homeFooter";
 import MainNavbar from "../components/navbars/mainNavbar";
 import "../css/login.css";
 import { login } from "../Actions/CounterAction";
+import Swal from "sweetalert2";
 export default function Login() {
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
   const { isAuthenticated } = useSelector(
     (state) => ({
@@ -41,11 +42,32 @@ export default function Login() {
     localStorage.removeItem("latestAction");
     localStorage.removeItem("loginStatus");
     console.log("submit called");
-    const data = {
-      email: email,
-      password: password,
-    };
-    dispatch(login(data));
+    if (email.length > 0 && password.length > 0) {
+      console.log("if");
+      const data = {
+        email: email,
+        password: password,
+      };
+      dispatch(login(data));
+    } else {
+      console.log("else");
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener("mouseenter", Swal.stopTimer);
+          toast.addEventListener("mouseleave", Swal.resumeTimer);
+        },
+      });
+
+      Toast.fire({
+        icon: "error",
+        title: "Email and Password is required!",
+      });
+    }
   };
 
   return (
@@ -87,6 +109,7 @@ export default function Login() {
             </form>
             <button
               className="login-button"
+              type="submit"
               onClick={(e) => {
                 e.preventDefault();
                 handleLogin(e);

@@ -125,6 +125,7 @@
   justify-content: center;
   min-height: 4rem;
   text-decoration: none;
+  margin-right: 10px;
 }
 .navbar-main-search-button-link:hover {
   background-color: #3a3c3e;
@@ -346,6 +347,20 @@
   .navbar-main-links-items {
     display: flex;
   }
+  
+}
+@media screen and (min-width: 701px) {
+  
+  .navbar-main-more-option-icon-desk {
+    max-width: 40px;
+    display: block !important;
+  }
+}
+@media screen and (min-width: 701px) {
+  .navbar-main-more-option-icon-mob {
+    max-width: 40px;
+    display: none !important;
+  }
 }
 @media screen and (min-width: 650px) {
   .navbar-main-links-items {
@@ -455,14 +470,8 @@
   .navbar-main-more-option {
     margin-right: 0.5rem;
   }
-  .navbar-main-more-option-icon-desk {
-    max-width: 40px;
-    display: block !important;
-  }
-  .navbar-main-more-option-icon-mob {
-    max-width: 40px;
-    display: none !important;
-  }
+  
+  
   .navbar-main-search-button-link {
     background-position: center 13px;
   }
@@ -494,12 +503,15 @@
     display: none;
   }
 }
+@media screen and (max-width: 700px) {
+
+  .navbar-main-links-items {
+    display: none;
+  }
+}
 @media screen and (max-width: 599px) {
   .navbar-logo-main {
     flex-grow: 1;
-  }
-  .navbar-main-links-items {
-    display: none;
   }
   .navbar-main-login-logo {
     width: 2rem;

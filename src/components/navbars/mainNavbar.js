@@ -1,15 +1,86 @@
 import React, { Component, useState, useEffect } from "react";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { Link } from "gatsby";
+// import { OverlayTrigger, Popover } from "react-bootstrap";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
 import { FaUserAlt } from "react-icons/fa";
 import { SlOptions } from "react-icons/sl";
 import { ImMenu } from "react-icons/im";
 import { BiSearch } from "react-icons/bi";
 import { MdOutlineClose } from "react-icons/md";
+import Avatar from "../../images/unknown-person-icon-10.jpg";
 import "../../css/main-navbar.css";
 
 const MainNavbar = () => {
+  const {  username, isAuthenticated, full_name } = useSelector(
+    (state) => ({
+      full_name: state.user?state.user.name:"",
+      username: state.user?state.user.username:"",
+      isAuthenticated: state.isAuthenticated,
+    }),
+    shallowEqual
+  );
   const [moreActive, setMoreActive] = useState(false);
   const width = useWindowWidth();
+  const popover = (
+    <Popover id="notification-popover">
+      <ul className="author-option-main-list flex">
+        <React.Fragment>
+          <li className="popover-item author-part">
+            <div className="flex-center">
+              <div className="flex1 popover-author-textual">
+                <div className="popover-author-textual-inner">
+                  <Link
+                    className="user-name-link"
+                    to={`/${username}`}
+                    title="Go to the profile of Sohaib Shafiq"
+                  >
+                    {full_name}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li className="list-divider popover-item"></li>
+          <li className="popover-item" style={{ padding: 0 }}>
+            <Link to="/create-article" className="list-button">
+              Write an Article
+            </Link>
+          </li>
+
+          <li className="popover-item" style={{ padding: 0 }}>
+            <Link to="/articles" className="list-button">
+              Articles
+            </Link>
+          </li>
+          <li className="popover-item" style={{ padding: 0 }}>
+            <Link to="/drafts" className="list-button">
+              Drafts
+            </Link>
+          </li>
+          <li className="popover-item" style={{ padding: 0 }}>
+            <button
+              className="list-button"
+              onClick={() => {
+                handleLogout();
+              }}
+            >
+              Sign out
+            </button>
+          </li>
+        </React.Fragment>
+      </ul>
+    </Popover>
+  );
+  const handleLogout = async () => {
+    const timeoutId = setTimeout(() => {
+      localStorage.removeItem("_token_auth_user");
+      window.location.reload();
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  };
+
   return (
     <div className="navbar-container">
       <header className="navbar-header">
@@ -40,18 +111,7 @@ const MainNavbar = () => {
                 </svg>
               </Link>
             </div>
-            {/* <div className="navbar-login-cont navbar-basline">
-              <div className="navbar-login-cont-inner navbar-baseline">
-                <div className="navbar-login-cont-inner-2 navbar-baseline">
-                  <Link to="/" className="navbar-main-login-link">
-                    <FaUserAlt className="navbar-main-login-logo" />
-                    <span className="navbar-main-login-text navbar-basline">
-                      Your Account
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </div> */}
+
             <nav className="navbar-main-links-cont">
               <ul className="navbar-main-links-list navbar-basline">
                 <li className="navbar-main-links-items navbar-baseline">
@@ -174,6 +234,26 @@ const MainNavbar = () => {
                   </span>
                 </Link>
               </div>
+              {isAuthenticated && (
+                <div className="logged-nav-avatar">
+                  <div className="logged-nav-avatar-inner">
+                    <button className="logged-nav-avatar-button">
+                      <OverlayTrigger
+                        trigger="click"
+                        placement="bottom"
+                        // rootClose
+                        overlay={popover}
+                      >
+                        <img
+                          src={Avatar}
+                          alt="knlknl"
+                          className="logged-nav-avatar-img"
+                        />
+                      </OverlayTrigger>
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -181,7 +261,7 @@ const MainNavbar = () => {
       <div
         className={`${moreActive == true ? `drawer-visibe` : `drawer-hidden`}`}
         style={{
-          height: width > 600 ? "64px" : "409.531px",
+          height: width > 700 ? "64px" : "409.531px",
           overflow: "hidden",
           transitionDelay: "0s, 0s, 0.2s",
           transitionDuration: "0.2s, 0.2s, 0s",
@@ -192,7 +272,7 @@ const MainNavbar = () => {
         <section className="navbar-more-container-padded">
           <div className="navbar-more-container-inner navbar-baseline">
             <ul className="navbar-more-links navbar-baseline">
-              {width < 600 && (
+              {width < 720 && (
                 <React.Fragment>
                   <li className="navbar-more-link-item navbar-baseline ">
                     <Link
@@ -224,10 +304,7 @@ const MainNavbar = () => {
                       </span>
                     </Link>
                   </li>
-                </React.Fragment>
-              )}
-              {width < 650 && (
-                <React.Fragment>
+
                   <li className="navbar-more-link-item navbar-baseline">
                     <Link
                       to="/sports"
@@ -238,10 +315,6 @@ const MainNavbar = () => {
                       </span>
                     </Link>
                   </li>
-                </React.Fragment>
-              )}
-              {width < 720 && (
-                <React.Fragment>
                   <li className="navbar-more-link-item navbar-baseline">
                     <Link
                       to="/travel"

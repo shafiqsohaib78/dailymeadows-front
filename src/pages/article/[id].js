@@ -18,24 +18,22 @@ import axios from "axios";
 
 import store from "../../ReduxStore";
 import { loadUser } from "../../Actions/CounterAction";
+import { TailSpin } from "react-loader-spinner";
 export default function Article(props) {
   useEffect(() => {
     store.dispatch(loadUser());
   }, []);
-  const [post, setPost] = useState();
-  const [isEmpty, setIsEmpty] = useState();
+  const [title, setTitle] = useState();
+  const [meta, setMeta] = useState();
+  const [description, setDescription] = useState();
+  const [read_min, setReadMin] = useState();
+  const [date, setDate] = useState();
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const ejInstance = useRef();
-  // useEffect(() => {
-  //   if (ejInstance.current === null) {
-  //     initEditor();
-  //   }
 
-  //   return () => {
-  //     ejInstance?.current?.destroy();
-  //     ejInstance.current = null;
-  //   };
-  // }, []);
   useEffect(() => {
+    setIsLoading(true);
     getPost();
   }, []);
   const getPost = () => {
@@ -43,14 +41,20 @@ export default function Article(props) {
       await axios
         .get(`http://127.0.0.1:8000/api/articles-detail/?post=${props.id}`)
         .then((res) => {
-          console.log(res.data);
-          if (res.data.results.length > 0) {
-            setPost(res.data.results);
+          console.log(res.data[0]);
+          // if (res.data.results.length > 0) {
+          if (res.data) {
+            setTitle(res.data[0].title);
+            setMeta(res.data[0].meta);
+            setReadMin(res.data[0].read_min);
+            setDescription(res.data[0].description);
+            setDate(res.data[0].date);
 
             setIsEmpty(false);
           } else {
             setIsEmpty(true);
           }
+          setIsLoading(false);
         })
         .catch((err) => {
           if (err.response) {
@@ -71,10 +75,24 @@ export default function Article(props) {
               title: "Something went wrong.",
             });
           }
+          setIsLoading(false);
         });
-    }, 500);
+    }, 1000);
     return () => clearTimeout(timeoutId);
   };
+  // useEffect(() => {
+  //   if (!isEmpty) {
+  //     if (ejInstance.current === null) {
+  //       initEditor();
+  //     }
+
+  //     console.log(JSON.parse(description));
+  //     return () => {
+  //       ejInstance?.current?.destroy();
+  //       ejInstance.current = null;
+  //     };
+  //   }
+  // }, [isEmpty]);
   const single = [1];
   const data = {
     time: 1683556418574,
@@ -198,23 +216,42 @@ export default function Article(props) {
     ],
     version: "2.12.4",
   };
-  const initEditor = () => {
-    const editor = new EditorJS({
-      holder: "read-only-editor",
-      // onReady: () => {
-      //   ejInstance.current = editor;
-      // },
-      // autofocus: true,
-      data: DEFAULT_INITIAL_DATA,
-      readOnly: true,
-      // onChange: async () => {
-      //   let content = await editor.saver.save();
+  useEffect(() => {
+    if (!isEmpty) {
+      const editor = new EditorJS({
+        /**
+         * Id of Element that should contain the Editor
+         */
+        holder: "read-only-editor",
+        readOnly: true,
+        // autofocus: true,
+        data: JSON.parse(description),
 
-      //   console.log(content);
-      // },
-      tools: { EDITOR_JS_TOOLS },
-    });
-  };
+        /**
+         * Available Tools list.
+         * Pass Tool's class or Settings object for each Tool you want to use
+         */
+        tools: EDITOR_JS_TOOLS,
+      });
+    }
+  });
+  // const initEditor = () => {
+  //   const editor = new EditorJS({
+  //     holder: "read-only-editor",
+  //     onReady: () => {
+  //       ejInstance.current = editor;
+  //     },
+  //     // autofocus: true,
+  //     data: DEFAULT_INITIAL_DATA,
+  //     readOnly: true,
+  //     // onChange: async () => {
+  //     //   let content = await editor.saver.save();
+
+  //     //   console.log(content);
+  //     // },
+  //     // tools: { EDITOR_JS_TOOLS },
+  //   });
+  // };
 
   return (
     <React.Fragment>
@@ -228,132 +265,146 @@ export default function Article(props) {
               <div>
                 <section className="single-post-section">
                   <div className="single-post-header">
-                    {single
-                      ? single.map((item, index) => (
-                          <div
-                            className="single-post-header-padded"
-                            key={index}
-                          >
-                            <div>
-                              <h1 className="single-post-title font-weight">
-                                {" "}
-                                Ukraine war: Russia launches 'biggest' kamikaze
-                                drone attack
-                              </h1>
+                    <>
+                      {isLoading ? (
+                        <TailSpin
+                          color="#000"
+                          height={50}
+                          width={50}
+                          // timeout={3000}
+                        />
+                      ) : (
+                        <>
+                          {isEmpty ? (
+                            <div className="home-page-bottom-posts">
+                              <p>We couldn’t find any Posts.</p>
                             </div>
-                            <div>
-                              <h2 className="single-post-description font-weight">
-                                Explosions were heard overnight in the capital,
-                                Kyiv, where the mayor said five people had been
-                                injured in the "biggest" kamikaze drone attack
-                                so far.
-                              </h2>
-                              <div className="single-post-info">
-                                <div className="single-post-info-padded">
-                                  <div className="single-post-owner">
-                                    <div>
-                                      <a href={`/@sohaib`}>
-                                        <div className="single-post-owner-img-container">
-                                          <img
-                                            className="single-post-owner-img block"
-                                            src={Pic}
-                                            alt=""
-                                            width="48px"
-                                            height="48px"
-                                          />
+                          ) : (
+                            <div className="single-post-header-padded" key={1}>
+                              <div>
+                                <h1 className="single-post-title font-weight">
+                                  {" "}
+                                  {title}
+                                </h1>
+                              </div>
+                              <div>
+                                <h2 className="single-post-description font-weight">
+                                  {meta}
+                                </h2>
+                                <div className="single-post-info">
+                                  <div className="single-post-info-padded">
+                                    <div className="single-post-owner">
+                                      <div>
+                                        <a href={`/@sohaib`}>
+                                          <div className="single-post-owner-img-container">
+                                            <img
+                                              className="single-post-owner-img block"
+                                              src={Pic}
+                                              alt=""
+                                              width="48px"
+                                              height="48px"
+                                            />
+                                          </div>
+                                        </a>
+                                      </div>
+                                      <div className="single-post-owner-textual block">
+                                        <div className="single-post-owner-textual-info">
+                                          <div style={{ flex: "1 1 0%" }}>
+                                            <span className="single-post-owner-textual-outer font-weight">
+                                              <div className="single-post-owner-textual-inner">
+                                                <span className="single-post-owner-name font-weight">
+                                                  <a
+                                                    href={`/@sohaib`}
+                                                    className="link"
+                                                  >
+                                                    Sohaib Shafiq
+                                                  </a>
+                                                </span>
+                                              </div>
+                                            </span>
+                                          </div>
                                         </div>
-                                      </a>
-                                    </div>
-                                    <div className="single-post-owner-textual block">
-                                      <div className="single-post-owner-textual-info">
-                                        <div style={{ flex: "1 1 0%" }}>
-                                          <span className="single-post-owner-textual-outer font-weight">
-                                            <div className="single-post-owner-textual-inner">
-                                              <span className="single-post-owner-name font-weight">
-                                                <a
-                                                  href={`/@sohaib`}
-                                                  className="link"
-                                                >
-                                                  Sohaib Shafiq
-                                                </a>
+                                        <span className="single-post-infontime font-weight">
+                                          <div className="home-page-bottom-options-left">
+                                            <span className="home-page-bottom-options-date">
+                                              <span className="home-page-bottom-options-date-inner">
+                                                {date}
+                                              </span>
+                                            </span>
+                                            <div className="home-page-bottom-options-spacer block">
+                                              <span className="block">
+                                                <span className="home-page-bottom-options-spacer-inner">
+                                                  ·
+                                                </span>
                                               </span>
                                             </div>
-                                          </span>
-                                        </div>
-                                      </div>
-                                      <span className="single-post-infontime font-weight">
-                                        <div className="home-page-bottom-options-left">
-                                          <span className="home-page-bottom-options-date">
-                                            <span className="home-page-bottom-options-date-inner">
-                                              Dec 23, 2019
-                                            </span>
-                                          </span>
-                                          <div className="home-page-bottom-options-spacer block">
-                                            <span className="block">
-                                              <span className="home-page-bottom-options-spacer-inner">
-                                                ·
+                                            <span className="home-page-bottom-options-reading-time">
+                                              <span className="home-page-bottom-options-reading-time-inner">
+                                                {read_min} min read
                                               </span>
                                             </span>
                                           </div>
-                                          <span className="home-page-bottom-options-reading-time">
-                                            <span className="home-page-bottom-options-reading-time-inner">
-                                              6 min read
-                                            </span>
-                                          </span>
-                                        </div>
-                                      </span>
+                                        </span>
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="single-post-share-section">
-                                    <div className="single-post-share-section-padded">
-                                      <div className="single-post-share-button-container block">
-                                        <button
-                                          className="single-post-share-button"
-                                          aria-label="Share on twitter"
-                                        >
-                                          <TwitterShareButton
+                                    <div className="single-post-share-section">
+                                      <div className="single-post-share-section-padded">
+                                        <div className="single-post-share-button-container block">
+                                          <button
+                                            className="single-post-share-button"
+                                            aria-label="Share on twitter"
+                                          >
+                                            <TwitterShareButton
+                                              url={window.location.href}
+                                              title={title}
+                                              className="single-post-share-button"
+                                            >
+                                              <FaTwitter
+                                                size="1.4rem"
+                                                color="rgba(117, 117, 117, 1)"
+                                              />
+                                            </TwitterShareButton>
+                                          </button>
+                                        </div>
+                                        <div className="single-post-share-button-container block">
+                                          <LinkedinShareButton
                                             url={window.location.href}
-                                            title={item.title}
+                                            title={title}
                                             className="single-post-share-button"
                                           >
-                                            <FaTwitter
+                                            <FaLinkedin
                                               size="1.4rem"
                                               color="rgba(117, 117, 117, 1)"
                                             />
-                                          </TwitterShareButton>
-                                        </button>
-                                      </div>
-                                      <div className="single-post-share-button-container block">
-                                        <LinkedinShareButton
-                                          url={window.location.href}
-                                          title={item.title}
-                                          className="single-post-share-button"
-                                        >
-                                          <FaLinkedin
-                                            size="1.4rem"
-                                            color="rgba(117, 117, 117, 1)"
-                                          />
-                                        </LinkedinShareButton>
-                                      </div>
-                                      <div className="single-post-share-button-container block">
-                                        <FacebookShareButton
-                                          url={window.location.href}
-                                          title={`Explosions were heard overnight in the capital, Kyiv, where the mayor said five people had been injured in the "biggest" kamikaze drone attack so far.`}
-                                          className="single-post-share-button"
-                                        >
-                                          <FaFacebookSquare
-                                            size="1.4rem"
-                                            color="rgba(117, 117, 117, 1)"
-                                          />
-                                        </FacebookShareButton>
+                                          </LinkedinShareButton>
+                                        </div>
+                                        <div className="single-post-share-button-container block">
+                                          <FacebookShareButton
+                                            url={window.location.href}
+                                            title={`Explosions were heard overnight in the capital, Kyiv, where the mayor said five people had been injured in the "biggest" kamikaze drone attack so far.`}
+                                            className="single-post-share-button"
+                                          >
+                                            <FaFacebookSquare
+                                              size="1.4rem"
+                                              color="rgba(117, 117, 117, 1)"
+                                            />
+                                          </FacebookShareButton>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
 
-                            {/* <EditorJS
+                              <div id="read-only-editor" />
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {/* {single
+                        ? single.map((item, index) => ( */}
+
+                      {/* <EditorJS
                               autofocus
                               data={data}
                               holder="read-only-editor"
@@ -362,11 +413,10 @@ export default function Article(props) {
                               tools={EDITOR_JS_TOOLS}
                               readOnly="true"
                             > */}
-                            <div id="read-only-editor" />
-                            {/* </EditorJS> */}
-                          </div>
-                        ))
-                      : null}
+                      {/* </EditorJS> */}
+                      {/* )) */}
+                      {/* : null} */}
+                    </>
                   </div>
                 </section>
               </div>
