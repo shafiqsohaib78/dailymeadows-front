@@ -16,6 +16,8 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import Swal from "sweetalert2";
 import { map } from "jquery";
+import { Link } from "gatsby";
+import { BsArrowLeft } from "react-icons/bs";
 const animatedComponents = makeAnimated();
 
 const CreateArticle = () => {
@@ -38,7 +40,6 @@ const CreateArticle = () => {
   const [dloading, setDLoading] = useState(false);
   const [read_min, setRead_Min] = useState(2);
   const [category, setCategory] = useState();
-  const [category1, setCategory1] = useState("");
   const [category2, setCategory2] = useState([]);
   const [description, setDiscription] = useState();
 
@@ -50,31 +51,33 @@ const CreateArticle = () => {
       window.location.href = "/";
     }
   }, [isAuthenticated]);
-  const onReady = async () => {
-    // https://editorjs.io/configuration#editor-modifications-callback
-    console.log("Editor.js is ready to work!");
-  };
+
   const editorCore = React.useRef(null);
 
   const handleInitialize = React.useCallback((instance) => {
     editorCore.current = instance;
   }, []);
 
-  const handleSave = React.useCallback(async () => {
-    const savedData = await editorCore.current.save();
-    console.log(title);
-    console.log(meta);
-    console.log(savedData);
+  const handleDraftSave = () => {
+    console.log("save draft");
+    setDLoading(true);
     const timeoutId = setTimeout(async () => {
       console.log(category);
       var form = new FormData();
       form.append("title", title);
       form.append("meta", meta);
-      form.append("description", JSON.stringify(savedData));
+      form.append("description", JSON.stringify(description));
+      form.append("category", JSON.stringify(category2));
       form.append("user", token);
-      if (savedData.blocks.length > 0 && title.length > 0 && meta.length > 0) {
+      form.append("read_min", read_min);
+      if (
+        description !== undefined &&
+        title.length > 20 &&
+        meta.length > 20 &&
+        category2.length !== 0
+      ) {
         axios
-          .post("http://127.0.0.1:8000/api/articles-create/", form, {
+          .post("http://127.0.0.1:8000/api/draft-create/", form, {
             headers: {
               "Content-Type": "application/json",
               Accept: "application/json",
@@ -82,14 +85,11 @@ const CreateArticle = () => {
             },
           })
           .then((res) => {
-            console.log(res.data);
-            console.log(res.status);
-            setLoading(false);
-            window.location.href = `/@${username}`;
-            setFLoading(false);
+            setDLoading(false);
+            window.location.href = `/drafts`;
           })
           .catch((err) => {
-            console.log(err.response.data.message);
+            console.log(err.response);
             const Toast = Swal.mixin({
               toast: true,
               position: "top-end",
@@ -106,6 +106,7 @@ const CreateArticle = () => {
               icon: "error",
               title: err.response.data.message,
             });
+            setDLoading(false);
           });
       } else {
         const Toast = Swal.mixin({
@@ -124,28 +125,19 @@ const CreateArticle = () => {
           icon: "error",
           title: "Title, Meta, Description, & Category is Must!",
         });
+        setDLoading(false);
       }
     }, 500);
     return () => clearTimeout(timeoutId);
-  }, []);
-
-  const handleDraftSave = () => {
-    console.log("save draft");
   };
   const handleTitleChange = async (event) => {
-    // console.log(event.target.value);
     setTitle(
       event.target.value && event.target.value && event.target.value
         ? event.target.value
         : ""
     );
-    // const timeoutId = setTimeout(async () => {
-    //   console.log(title);
-    // }, 1000);
-    // return () => clearTimeout(timeoutId);
   };
   const handleMetaChange = async (event) => {
-    // console.log(event.target.value);
     setMeta(
       event.target.value && event.target.value && event.target.value
         ? event.target.value
@@ -204,20 +196,14 @@ const CreateArticle = () => {
       category?.map((item, index) => {
         category3.push(item.value);
       });
-      // category?.map((item, index) => {
-      //   category2 += index === 0 ? `${item.value}` : `, ${item.value}`;
-      // });
       console.log(category3);
       setCategory2(category3);
     }, 500);
     return () => clearTimeout(timeoutId);
   }, [category]);
+
   const submit = () => {
-    console.log(title);
-    console.log(meta);
-    console.log(description);
-    console.log(category1);
-    console.log(read_min);
+    setFLoading(true);
     const timeoutId = setTimeout(async () => {
       console.log(category);
       var form = new FormData();
@@ -242,11 +228,8 @@ const CreateArticle = () => {
             },
           })
           .then((res) => {
-            console.log(res.data);
-            console.log(res.status);
-            setLoading(false);
-            window.location.href = `/articles`;
             setFLoading(false);
+            window.location.href = `/articles`;
           })
           .catch((err) => {
             console.log(err.response);
@@ -266,6 +249,7 @@ const CreateArticle = () => {
               icon: "error",
               title: err.response.data.message,
             });
+            setFLoading(false);
           });
       } else {
         const Toast = Swal.mixin({
@@ -284,6 +268,7 @@ const CreateArticle = () => {
           icon: "error",
           title: "Title, Meta, Description, & Category is Must!",
         });
+        setFLoading(false);
       }
     }, 500);
     return () => clearTimeout(timeoutId);
@@ -299,7 +284,15 @@ const CreateArticle = () => {
         dloading={dloading}
       />
       <div style={{ minHeight: "100vh", marginBottom: "2rem" }}>
-        <div className="block" style={{ marginTop: "7rem" }}>
+        <div className="block" style={{ marginTop: "6rem" }}>
+          <div className="go-back-link">
+            <BsArrowLeft />
+            <Link className="go-back-link-link" to="/">
+              Go To Homepage
+            </Link>
+          </div>
+        </div>
+        <div className="block" style={{ marginTop: "2rem" }}>
           <div className="create-title">
             <Textarea
               rows="1"

@@ -11,6 +11,7 @@ import { TailSpin } from "react-loader-spinner";
 
 import store from "../ReduxStore";
 import { loadUser } from "../Actions/CounterAction";
+import { BsArrowLeft } from "react-icons/bs";
 export default function Search() {
   useEffect(() => {
     store.dispatch(loadUser());
@@ -119,6 +120,14 @@ export default function Search() {
       <MainNavbar />
       <div style={{ minHeight: "100vh" }}>
         <div className="search-inner-container p-r">
+          <div className="block" style={{ marginBottom: "2rem" }}>
+            <div className="go-back-link">
+              <BsArrowLeft />
+              <Link className="go-back-link-link" to="/">
+                Go To Homepage
+              </Link>
+            </div>
+          </div>
           <div
             className="search-input"
             style={{

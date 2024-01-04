@@ -1,11 +1,77 @@
 import React, { useState, useEffect } from "react";
 import "../../css/nav.css";
-import Loader from "react-loader-spinner";
+import Avatar from "../../images/unknown-person-icon-10.jpg";
+import { TailSpin } from "react-loader-spinner";
+import { OverlayTrigger, Popover } from "react-bootstrap";
+import { Link } from "gatsby";
+import { shallowEqual, useSelector } from "react-redux";
 
 const CreateStoryNav = (props) => {
-  const [notCount, setNotCount] = useState();
-  const [floading, setFLoading] = useState(false);
-  const width = useWindowWidth();
+  const { username, isAuthenticated, full_name } = useSelector(
+    (state) => ({
+      full_name: state.user ? state.user.name : "",
+      username: state.user ? state.user.username : "",
+      isAuthenticated: state.isAuthenticated,
+    }),
+    shallowEqual
+  );
+  const handleLogout = async () => {
+    const timeoutId = setTimeout(() => {
+      localStorage.removeItem("_token_auth_user");
+      window.location.reload();
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  };
+  const popover = (
+    <Popover id="notification-popover">
+      <ul className="author-option-main-list flex">
+        <React.Fragment>
+          <li className="popover-item author-part">
+            <div className="flex-center">
+              <div className="flex1 popover-author-textual">
+                <div className="popover-author-textual-inner">
+                  <Link
+                    className="user-name-link"
+                    to={`/${username}`}
+                    title="Go to the profile of Sohaib Shafiq"
+                  >
+                    {full_name}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li className="list-divider popover-item"></li>
+          <li className="popover-item" style={{ padding: 0 }}>
+            <Link to="/create-article" className="list-button">
+              Write an Article
+            </Link>
+          </li>
+
+          <li className="popover-item" style={{ padding: 0 }}>
+            <Link to="/articles" className="list-button">
+              Articles
+            </Link>
+          </li>
+          <li className="popover-item" style={{ padding: 0 }}>
+            <Link to="/drafts" className="list-button">
+              Drafts
+            </Link>
+          </li>
+          <li className="popover-item" style={{ padding: 0 }}>
+            <button
+              className="list-button"
+              onClick={() => {
+                handleLogout();
+              }}
+            >
+              Sign out
+            </button>
+          </li>
+        </React.Fragment>
+      </ul>
+    </Popover>
+  );
   //   const { username, avatar, name } = useSelector(
   //     (state) => ({
   //       name: state.auth.user ? state.auth.user.name : "",
@@ -79,9 +145,9 @@ const CreateStoryNav = (props) => {
                 // data-action="show-prepublish"
                 // data-action-source="post_edit_prepublish"
                 disabled
+                style={{ marginLeft: "10px" }}
               >
-                <Loader
-                  type="TailSpin"
+                <TailSpin
                   color="#000"
                   height={20}
                   width={20}
@@ -93,12 +159,18 @@ const CreateStoryNav = (props) => {
                 className="save-draft-button"
                 style={{ marginLeft: "10px" }}
                 onClick={() => {
-                  if (props.floading === false) {
+                  if (
+                    props.floading === false &&
+                    props.dloading === false &&
+                    props.loading === false
+                  ) {
                     props.submitDraftFunc();
                   }
                 }}
                 disabled={
-                  props.dloading === true || props.floading === true
+                  props.dloading === true ||
+                  props.floading === true ||
+                  props.loading === true
                     ? true
                     : false
                 }
@@ -122,15 +194,14 @@ const CreateStoryNav = (props) => {
             style={{ paddingRight: "10px" }}
           >
             <div className="flex-center height65 xs-height56 padding-left8 padding-right8">
-              {props.loading ? (
+              {props.floading ? (
                 <button
                   className="publish-button button--smaller padding-left10 padding-right10 flex"
                   // data-action="show-prepublish"
                   // data-action-source="post_edit_prepublish"
                   disabled
                 >
-                  <Loader
-                    type="TailSpin"
+                  <TailSpin
                     color="#fff"
                     height={20}
                     width={20}
@@ -143,16 +214,47 @@ const CreateStoryNav = (props) => {
                   data-action="show-prepublish"
                   data-action-source="post_edit_prepublish"
                   onClick={() => {
-                    if (props.floading === false) {
+                    if (
+                      props.floading === false &&
+                      props.dloading === false &&
+                      props.loading === false
+                    ) {
                       props.submitFunc();
                     }
                   }}
+                  disabled={
+                    props.dloading === true ||
+                    props.floading === true ||
+                    props.loading === true
+                      ? true
+                      : false
+                  }
                 >
                   <span className="">Publish</span>
                 </button>
               )}
             </div>
           </div>
+          {isAuthenticated && (
+            <div className="logged-nav-avatar">
+              <div className="logged-nav-avatar-inner">
+                <button className="logged-nav-avatar-button">
+                  <OverlayTrigger
+                    trigger="click"
+                    placement="bottom"
+                    // rootClose
+                    overlay={popover}
+                  >
+                    <img
+                      src={Avatar}
+                      alt="knlknl"
+                      className="logged-nav-avatar-img"
+                    />
+                  </OverlayTrigger>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </React.Fragment>
@@ -160,16 +262,3 @@ const CreateStoryNav = (props) => {
 };
 
 export default CreateStoryNav;
-
-function useWindowWidth() {
-  const [width, setWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleWidth = async () => setWidth(window.innerWidth);
-    window.addEventListener("resize", handleWidth);
-    return () => {
-      window.removeEventListener("resize", handleWidth);
-    };
-  });
-  return width;
-}

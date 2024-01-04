@@ -171,7 +171,7 @@ const Articles = (props) => {
                                         <div className="home-page-bottom-options-left">
                                           <span className="home-page-bottom-options-date">
                                             <span className="home-page-bottom-options-date-inner">
-                                              Dec 23, 2024
+                                              {item.date}
                                             </span>
                                           </span>
                                           {width > 500 && (
@@ -185,7 +185,7 @@ const Articles = (props) => {
                                               </div>
                                               <span className="home-page-bottom-options-reading-time">
                                                 <span className="home-page-bottom-options-reading-time-inner">
-                                                  6 min read
+                                                  {item.read_min} min read
                                                 </span>
                                               </span>
                                             </React.Fragment>
@@ -216,14 +216,22 @@ const Articles = (props) => {
                                     >
                                       {width > 550 && (
                                         <img
-                                          src={`https://miro.medium.com/v2/resize:fit:720/0*Ea5wE_fSMYHPRV5I`}
+                                          src={
+                                            item.image
+                                              ? item.image
+                                              : `https://miro.medium.com/v2/resize:fit:720/0*Ea5wE_fSMYHPRV5I`
+                                          }
                                           width={200}
                                           height={133}
                                         />
                                       )}
                                       {width < 551 && (
                                         <img
-                                          src={`https://miro.medium.com/v2/resize:fit:720/0*Ea5wE_fSMYHPRV5I`}
+                                          src={
+                                            item.image
+                                              ? item.image
+                                              : `https://miro.medium.com/v2/resize:fit:720/0*Ea5wE_fSMYHPRV5I`
+                                          }
                                           width={100}
                                           height={100}
                                         />

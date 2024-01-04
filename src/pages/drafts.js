@@ -16,21 +16,97 @@ import Footer from "../components/footers/homeFooter";
 
 import store from "../ReduxStore";
 import { loadUser } from "../Actions/CounterAction";
+import { shallowEqual, useSelector } from "react-redux";
+import Swal from "sweetalert2";
 const CatagoryPosts = (props) => {
+  const { isAuthenticated, u_id } = useSelector(
+    (state) => ({
+      isAuthenticated: state.isAuthenticated,
+      u_id: state.user ? state.user.u_id : null,
+    }),
+    shallowEqual
+  );
   useEffect(() => {
     store.dispatch(loadUser());
   }, []);
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      window.location.href = "/";
+    }
+  }, [isAuthenticated]);
   const width = useWindowWidth();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState();
   const [loading, setLoading] = useState(false);
+  const [next, setNext] = useState(null);
+  const [hasNext, setHasNext] = useState(true);
+  const [isEmpty, setIsEmpty] = useState();
+  const loadPosts = () => {
+    const timeoutId = setTimeout(async () => {
+      await axios
+        .get(`http://127.0.0.1:8000/api/drafts-acc/?user=${u_id}`)
+        .then((res) => {
+          console.log(res.data);
+          setData(res.data.results);
+          setNext(res.data.next);
+          if (res.data.next === null) {
+            setHasNext(false);
+          }
+          setIsEmpty(false);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err.response);
+          setLoading(false);
+        });
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  };
+
+  const handleNext = async () => {
+    console.log("next called");
+    if (next !== null && data) {
+      let newData = data;
+      console.log(newData);
+      console.log(data);
+      await axios
+        .get(next)
+        .then((res) => {
+          console.log(data.concat(res.data.results));
+          setData(data.concat(res.data.results));
+          setNext(res.data.next);
+          if (res.data.next === null) {
+            setHasNext(false);
+          }
+        })
+        .catch((err) => {
+          if (err.response) {
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              },
+            });
+
+            Toast.fire({
+              icon: "error",
+              title: "Something went wrong.",
+            });
+          }
+        });
+    }
+  };
+
   useEffect(() => {
     setLoading(true);
-
-    axios.get(`https://jsonplaceholder.typicode.com/posts`).then((res) => {
-      setData(res.data);
-      setLoading(false);
-    });
-  }, []);
+    if (u_id !== null) {
+      loadPosts();
+    }
+  }, [u_id]);
 
   return (
     <React.Fragment>
@@ -78,7 +154,7 @@ const CatagoryPosts = (props) => {
                                   <div className="home-page-bottom-options-left">
                                     <span className="home-page-bottom-options-date">
                                       <span className="home-page-bottom-options-date-inner">
-                                        Dec 23, 2024
+                                        {item.date}
                                       </span>
                                     </span>
                                     {width > 500 && (
@@ -92,7 +168,7 @@ const CatagoryPosts = (props) => {
                                         </div>
                                         <span className="home-page-bottom-options-reading-time">
                                           <span className="home-page-bottom-options-reading-time-inner">
-                                            6 min read
+                                            {item.read_min} min read
                                           </span>
                                         </span>
                                       </React.Fragment>
@@ -123,14 +199,14 @@ const CatagoryPosts = (props) => {
                               >
                                 {width > 550 && (
                                   <img
-                                    src={`https://miro.medium.com/v2/resize:fit:720/0*Ea5wE_fSMYHPRV5I`}
+                                    src={item.image}
                                     width={200}
                                     height={133}
                                   />
                                 )}
                                 {width < 551 && (
                                   <img
-                                    src={`https://miro.medium.com/v2/resize:fit:720/0*Ea5wE_fSMYHPRV5I`}
+                                    src={item.image}
                                     width={100}
                                     height={100}
                                   />

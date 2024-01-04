@@ -131,7 +131,11 @@
   white-space: normal;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 4px;
-  transition: 0.1s background-color, 0.1s border-color, 0.1s color, 0.1s fill;
+  transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
+    0.1s fill;
   display: inline-block;
   position: relative;
   text-decoration: none;
@@ -155,8 +159,15 @@
   text-align: center;
   width: 37px;
   border-radius: 100%;
-  transition: 0.1s background-color, 0.1s border-color, 0.1s color, 0.1s fill;
-  -webkit-transition: 0.1s background-color, 0.1s border-color, 0.1s color,
+  transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
+    0.1s fill;
+  -webkit-transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
     0.1s fill;
   display: inline-block;
   position: relative;
@@ -196,7 +207,11 @@
   position: relative;
   fill: inherit;
   vertical-align: middle;
-  transition: 0.1s background-color, 0.1s border-color, 0.1s color, 0.1s fill;
+  transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
+    0.1s fill;
   display: inline-block;
 }
 .create-nav-not-sm {
@@ -205,7 +220,11 @@
   border-width: 0;
   padding: 0;
   text-align: left;
-  transition: 0.1s background-color, 0.1s border-color, 0.1s color, 0.1s fill;
+  transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
+    0.1s fill;
   white-space: normal;
 }
 .margin-right16 {
@@ -223,7 +242,11 @@
   position: relative;
   fill: rgba(0, 0, 0, 0.54);
   vertical-align: middle;
-  transition: 0.1s background-color, 0.1s border-color, 0.1s color, 0.1s fill;
+  transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
+    0.1s fill;
   line-height: 25px;
   height: 25px;
   display: inline-block;
@@ -235,7 +258,11 @@
   border-width: 0;
   padding: 0;
   text-align: left;
-  transition: 0.1s background-color, 0.1s border-color, 0.1s color, 0.1s fill;
+  transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
+    0.1s fill;
   position: relative;
   color: rgba(0, 0, 0, 0.54);
   background: rgba(0, 0, 0, 0);
@@ -534,7 +561,11 @@
   color: #757575;
   vertical-align: baseline;
   border-width: 0;
-  transition: 0.1s background-color, 0.1s border-color, 0.1s color, 0.1s fill;
+  transition:
+    0.1s background-color,
+    0.1s border-color,
+    0.1s color,
+    0.1s fill;
   display: inline-block;
   position: relative;
   font-size: 16px;
@@ -554,6 +585,29 @@
   color: black;
   border-color: black;
   text-decoration: none;
+}
+.go-back-link {
+  max-width: 740px;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  position: relative;
+  text-align: end;
+  text-decoration: underline;
+  font-size: larger;
+  font-weight: bolder;
+}
+.go-back-link-link {
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  background-color: transparent;
+  color: #757575;
+}
+.go-back-link-link:hover {
+  color: #000;
 }
 
 @media only screen and (max-width: 380px) {
