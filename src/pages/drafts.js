@@ -18,6 +18,7 @@ import store from "../ReduxStore";
 import { loadUser } from "../Actions/CounterAction";
 import { shallowEqual, useSelector } from "react-redux";
 import Swal from "sweetalert2";
+import InfiniteScroll from "react-infinite-scroll-component";
 const CatagoryPosts = (props) => {
   const { isAuthenticated, u_id } = useSelector(
     (state) => ({
@@ -123,100 +124,123 @@ const CatagoryPosts = (props) => {
               <div className="home-page-bottom-posts">
                 <div>
                   <div className="block">
-                    {loading === true ? (
-                      <TailSpin color="#000" height={80} width={80} />
+                    {isEmpty ? (
+                      <div className="home-page-bottom-posts">
+                        <p>We couldn’t find any Posts.</p>
+                      </div>
                     ) : (
-                      data &&
-                      data.map((item, index) => (
-                        <div
-                          className="home-page-bottom-posts-container"
-                          key={index}
+                      <>
+                        <InfiniteScroll
+                          dataLength={data && data ? data.length : 0}
+                          next={handleNext}
+                          hasMore={hasNext}
+                          loader={
+                            <TailSpin
+                              color="#000"
+                              height={50}
+                              width={50}
+                              // timeout={3000}
+                            />
+                          }
                         >
-                          <div className="home-page-bottom-posts-container-outer">
-                            <div className="home-page-bottom-posts-container-inner">
-                              <div className="home-page-bottom-post-textual block">
-                                <a
-                                  href={`/@${item.username}/${item.slug}`}
-                                  className="link"
-                                >
-                                  <h2 className="home-page-bottom-post-title">
-                                    {item.title}
-                                  </h2>
-                                  {width > 500 && (
-                                    <div className="home-page-bottom-post-description block">
-                                      <h3 className="home-page-bottom-post-description-text">
-                                        {item.body}
-                                      </h3>
-                                    </div>
-                                  )}
-                                </a>
-                                <div className="home-page-bottom-options">
-                                  <div className="home-page-bottom-options-left">
-                                    <span className="home-page-bottom-options-date">
-                                      <span className="home-page-bottom-options-date-inner">
-                                        {item.date}
-                                      </span>
-                                    </span>
-                                    {width > 500 && (
-                                      <React.Fragment>
-                                        <div className="home-page-bottom-options-spacer block">
-                                          <span className="block">
-                                            <span className="home-page-bottom-options-spacer-inner">
-                                              ·
+                          {data &&
+                            data.map((item, index) => (
+                              <div
+                                className="home-page-bottom-posts-container"
+                                key={index}
+                              >
+                                <div className="home-page-bottom-posts-container-outer">
+                                  <div className="home-page-bottom-posts-container-inner">
+                                    <div className="home-page-bottom-post-textual block">
+                                      <a
+                                        href={`/drafts/${item.slug}`}
+                                        className="link"
+                                      >
+                                        <h2 className="home-page-bottom-post-title">
+                                          {item.title}
+                                        </h2>
+                                        {width > 500 && (
+                                          <div className="home-page-bottom-post-description block">
+                                            <h3 className="home-page-bottom-post-description-text">
+                                              {item.body}
+                                            </h3>
+                                          </div>
+                                        )}
+                                      </a>
+                                      <div className="home-page-bottom-options">
+                                        <div className="home-page-bottom-options-left">
+                                          <span className="home-page-bottom-options-date">
+                                            <span className="home-page-bottom-options-date-inner">
+                                              {item.date}
                                             </span>
                                           </span>
+                                          {width > 500 && (
+                                            <React.Fragment>
+                                              <div className="home-page-bottom-options-spacer block">
+                                                <span className="block">
+                                                  <span className="home-page-bottom-options-spacer-inner">
+                                                    ·
+                                                  </span>
+                                                </span>
+                                              </div>
+                                              <span className="home-page-bottom-options-reading-time">
+                                                <span className="home-page-bottom-options-reading-time-inner">
+                                                  {item.read_min} min read
+                                                </span>
+                                              </span>
+                                            </React.Fragment>
+                                          )}
                                         </div>
-                                        <span className="home-page-bottom-options-reading-time">
-                                          <span className="home-page-bottom-options-reading-time-inner">
-                                            {item.read_min} min read
-                                          </span>
-                                        </span>
-                                      </React.Fragment>
-                                    )}
+                                      </div>
+                                      <div className="home-page-bottom-options">
+                                        <div className="home-page-bottom-options-left">
+                                          <button
+                                            type="button"
+                                            class="btn btn-primary"
+                                          >
+                                            <a
+                                              className="link"
+                                              href={`/drafts-edit/${item.slug}`}
+                                            >
+                                              Edit
+                                            </a>
+                                          </button>
+                                          <button
+                                            type="button"
+                                            class="btn btn-danger"
+                                            style={{ marginLeft: "1rem" }}
+                                          >
+                                            Delete
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <a
+                                      href={`/@${item.username}/${item.slug}`}
+                                      className="link"
+                                    >
+                                      {width > 550 && (
+                                        <img
+                                          src={item.image}
+                                          width={200}
+                                          height={133}
+                                        />
+                                      )}
+                                      {width < 551 && (
+                                        <img
+                                          src={item.image}
+                                          width={100}
+                                          height={100}
+                                        />
+                                      )}
+                                    </a>
                                   </div>
                                 </div>
-                                <div className="home-page-bottom-options">
-                                  <div className="home-page-bottom-options-left">
-                                    <button
-                                      type="button"
-                                      class="btn btn-primary"
-                                    >
-                                      Edit
-                                    </button>
-                                    <button
-                                      type="button"
-                                      class="btn btn-danger"
-                                      style={{ marginLeft: "1rem" }}
-                                    >
-                                      Delete
-                                    </button>
-                                  </div>
-                                </div>
+                                {index + 1 !== data.length && <hr />}
                               </div>
-                              <a
-                                href={`/@${item.username}/${item.slug}`}
-                                className="link"
-                              >
-                                {width > 550 && (
-                                  <img
-                                    src={item.image}
-                                    width={200}
-                                    height={133}
-                                  />
-                                )}
-                                {width < 551 && (
-                                  <img
-                                    src={item.image}
-                                    width={100}
-                                    height={100}
-                                  />
-                                )}
-                              </a>
-                            </div>
-                          </div>
-                          {index + 1 !== data.length && <hr />}
-                        </div>
-                      ))
+                            ))}
+                        </InfiniteScroll>
+                      </>
                     )}
                   </div>
                 </div>

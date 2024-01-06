@@ -14,10 +14,10 @@ import { loadUser } from "../Actions/CounterAction";
 import axios from "axios";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
+import { BsArrowLeft } from "react-icons/bs";
 import Swal from "sweetalert2";
 import { map } from "jquery";
 import { Link } from "gatsby";
-import { BsArrowLeft } from "react-icons/bs";
 const animatedComponents = makeAnimated();
 
 const CreateArticle = () => {
@@ -293,7 +293,7 @@ const CreateArticle = () => {
           </div>
         </div>
         <div className="block" style={{ marginTop: "2rem" }}>
-          <div className="create-title">
+          <div className="create-title" style={{ marginBottom: "2rem" }}>
             <Textarea
               rows="1"
               placeholder="Title"
@@ -344,9 +344,9 @@ const CreateArticle = () => {
                 // instanceRef={(instance) => (instanceRef.current = instance)}
                 onInitialize={handleInitialize}
                 tools={EDITOR_JS_TOOLS}
-                // onReady={onReady}
                 holder="write-article-editor"
                 onChange={handleDescriptionChange}
+                // onReady={onReady}
               >
                 <div id="write-article-editor" />
               </ReactEditorJS>

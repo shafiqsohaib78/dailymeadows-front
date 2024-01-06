@@ -112,7 +112,7 @@
   font-weight: inherit;
   letter-spacing: inherit;
   font-family: inherit;
-  border: inherit;
+  border: none !important;
   font-size: inherit;
   color: inherit;
   fill: inherit;

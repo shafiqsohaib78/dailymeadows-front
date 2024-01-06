@@ -6,286 +6,563 @@ import "../../css/write-editor.css";
 import TextArea from "react-expanding-textarea";
 import { Link } from "gatsby";
 import Footer from "../../components/footers/homeFooter";
-import EditStoryNav from "../../components/navbars/edit-nav";
+import EditPostNav from "../../components/navbars/edit-post-nav";
+// import EditStoryNav from "../../components/navbars/edit-nav";
 
 // import "../../css/post/tooltip.scss";
 
 import store from "../../ReduxStore";
 import { loadUser } from "../../Actions/CounterAction";
+import { shallowEqual, useSelector } from "react-redux";
+import Swal from "sweetalert2";
+import axios from "axios";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
+import { TailSpin } from "react-loader-spinner";
+const animatedComponents = makeAnimated();
+
 const EditStoryInner = (props) => {
+  const { user, username, token, isAuthenticated } = useSelector(
+    (state) => ({
+      user: state.user ? state.user.id : "",
+      token: state.user ? state.user.token : null,
+      username: state.user ? state.user.username : "",
+      isAuthenticated: state.isAuthenticated,
+    }),
+    shallowEqual
+  );
   useEffect(() => {
     store.dispatch(loadUser());
   }, []);
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      window.location.href = "/";
+    } else {
+      const timeoutId = setTimeout(async () => {
+        setLoading(true);
+        getPost();
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   getPost();
+  // }, []);
   const width = useWindowWidth();
   const instanceRef = useRef(null);
-  const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState("");
+  const [meta, setMeta] = useState("");
+  const [isEmpty, setIsEmpty] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [floading, setFLoading] = useState(false);
   const [dloading, setDLoading] = useState(false);
-  const [description1, setDescription1] = useState();
+  const [read_min, setRead_Min] = useState(2);
+  const [read_minD, setRead_MinD] = useState();
+  const [category, setCategory] = useState();
+  const [category2, setCategory2] = useState([]);
+  const [description, setDescription] = useState();
+  const [post, setPost] = useState([]);
   const ReactEditorJS = createReactEditorJS();
-  const [title, setTitle] = useState(
-    "Ukraine war: Russia launches 'biggest' kamikaze drone attack"
-  );
-  const [meta, setMeta] = useState(
-    `Explosions were heard overnight in the capital, Kyiv, where the mayor said five people had been injured in the "biggest" kamikaze drone attack so far.`
-  );
-  const description = {
-    time: 1683556418574,
-    blocks: [
-      {
-        id: "mhTl6ghSkV",
-        type: "paragraph",
-        data: {
-          text: "Hey. Meet the new Editor. On this picture you can see it in action. Then, try a demo 🤓",
-        },
-      },
-      {
-        id: "l98dyx3yjb",
-        type: "header",
-        data: {
-          text: "Key features",
-          level: 3,
-        },
-      },
-      {
-        id: "os_YI4eub4",
-        type: "list",
-        data: {
-          type: "unordered",
-          items: [
-            "It is a block-style editor",
-            "It returns clean data output in JSON",
-            `Designed to be extendable and pluggable with a <a href="https://editorjs.io/creating-a-block-tool">simple API</a>`,
-          ],
-        },
-      },
-      {
-        id: "1yKeXKxN7-",
-        type: "header",
-        data: {
-          text: "What does it mean «block-styled editor»",
-          level: 3,
-        },
-      },
-      {
-        id: "TcUNySG15P",
-        type: "paragraph",
-        data: {
-          text: `Workspace in classic editors is made of a single contenteditable element, used to create different HTML markups. Editor.js workspace consists of separate Blocks: paragraphs, headings, images, lists, quotes, etc. Each of them is an independent <sup data-tune="footnotes">1</sup> contenteditable element (or more complex structure) provided by Plugin and united by Editor's Core.`,
-        },
-        tunes: {
-          footnotes: [
-            "It works more stable then in other WYSIWYG editors. Same time it has smooth and well-known arrow navigation behavior like classic editors.",
-          ],
-        },
-      },
-      {
-        id: "M3UXyblhAo",
-        type: "header",
-        data: {
-          text: "What does it mean clean data output?",
-          level: 3,
-        },
-      },
-      {
-        id: "KOcIofZ3Z1",
-        type: "paragraph",
-        data: {
-          text: `There are dozens of ready-to-use Blocks and a simple API <sup data-tune="footnotes">2</sup> for creating any Block you need. For example, you can implement Blocks for Tweets, Instagram posts, surveys and polls, CTA buttons, and even games.`,
-        },
-        tunes: {
-          footnotes: [
-            "Just take a look at our Creating Block Tool guide. You'll be surprised.",
-          ],
-        },
-      },
-      {
-        id: "ksCokKAhQw",
-        type: "paragraph",
-        data: {
-          text: `Classic WYSIWYG editors produce raw HTML-markup with both content data and content appearance. On the contrary, <mark class="cdx-marker">Editor.js outputs JSON object</mark> with data of each Block.`,
-        },
-      },
-      {
-        id: "XKNT99-qqS",
-        type: "attaches",
-        data: {
-          file: {
-            url: "https://drive.google.com/file/d/0B1HXnM1lBuoqMzVhZjcwNTAtZWI5OS00ZDg3LWEyMzktNzZmYWY2Y2NhNWQx/view?usp=sharing&resourcekey=0-5DqnTtXPFvySMiWstuAYdA",
-            size: 12902,
-            name: "file.pdf",
-            extension: "pdf",
+  const editorCore = React.useRef(null);
+
+  const handleInitialize = React.useCallback((instance) => {
+    editorCore.current = instance;
+  }, []);
+
+  const getPost = () => {
+    console.log(props.id);
+    const timeoutId = setTimeout(async () => {
+      await axios
+        .get(`http://127.0.0.1:8000/api/articles-detail/?post=${props.id}`)
+        .then((res) => {
+          console.log(res.data[0]);
+          // if (res.data.results.length > 0) {
+          if (res.data) {
+            // setTitle(res.data[0].title);
+            // setMeta(res.data[0].meta);
+            // setRead_Min(res.data[0].read_min);
+            // setDescription(res.data[0].description);
+            // setCategory(res.data[0].description);
+            setPost(res.data);
+            setIsEmpty(false);
+            // handleEditPostPrevData();
+          } else {
+            setIsEmpty(true);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          if (err.response) {
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              },
+            });
+
+            Toast.fire({
+              icon: "error",
+              title: "Something went wrong.",
+            });
+          }
+          setLoading(false);
+        });
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  };
+  const submitDraft = () => {
+    setDLoading(true);
+    console.log("save draft");
+    const timeoutId = setTimeout(async () => {
+      console.log(category2);
+      var form = new FormData();
+      form.append("title", title);
+      form.append("meta", meta);
+      form.append("description", JSON.stringify(description));
+      form.append("category", JSON.stringify(category2));
+      form.append("user", token);
+      form.append("read_min", read_min);
+      form.append("slug", props.id);
+      if (
+        description !== undefined &&
+        title.length > 20 &&
+        meta.length > 20 &&
+        category2.length !== 0
+      ) {
+        axios
+          .post("http://127.0.0.1:8000/api/draft-create/", form, {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `JWT ${token}`,
+            },
+          })
+          .then((res) => {
+            setDLoading(false);
+            window.location.href = `/drafts`;
+          })
+          .catch((err) => {
+            console.log(err.response);
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              },
+            });
+            Toast.fire({
+              icon: "error",
+              title: err.response.data.message,
+            });
+            setDLoading(false);
+          });
+      } else {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener("mouseenter", Swal.stopTimer);
+            toast.addEventListener("mouseleave", Swal.resumeTimer);
           },
-          title: "My file",
-        },
-      },
-      {
-        id: "7RosVX2kcH",
-        type: "paragraph",
-        data: {
-          text: "Given data can be used as you want: render with HTML for Web clients, render natively for mobile apps, create the markup for Facebook Instant Articles or Google AMP, generate an audio version, and so on.",
-        },
-      },
-      {
-        id: "eq06PsNsab",
-        type: "paragraph",
-        data: {
-          text: "Clean data is useful to sanitize, validate and process on the backend.",
-        },
-      },
-      {
-        id: "hZAjSnqYMX",
-        type: "image",
-        data: {
-          url: "https://ichef.bbci.co.uk/news/976/cpsprodpb/16213/production/_129634609_ndsbyyi8.png.webp",
-
-          withBorder: false,
-          withBackground: false,
-          stretched: true,
-          caption: "CodeX Code Camp 2019",
-        },
-      },
-    ],
+        });
+        Toast.fire({
+          icon: "error",
+          title: "Title, Meta, Description, & Category is Must!",
+        });
+        setDLoading(false);
+      }
+    }, 500);
+    return () => clearTimeout(timeoutId);
   };
-  async function handleSave() {
-    const savedData = await instanceRef.current.save();
-
-    console.log(window.location);
-    console.log(savedData);
-    var form = new FormData();
-    // form.append("draft_slug", props.match.params.slug);
-    form.append("title", title);
-    form.append("meta", meta);
-    form.append("description", JSON.stringify(savedData));
-    console.log(form);
-    // form.append("user", user);
-  }
-  async function submitDraft() {
-    const savedData = await instanceRef.current.save();
-    console.log(savedData);
-    console.log(props.match.params);
-    var form = new FormData();
-    // form.append("draft_slug", props.match.params.slug);
-    form.append("title", title);
-    form.append("meta", meta);
-    form.append("description", JSON.stringify(savedData));
-    // form.append("user", user);
-    console.log(form);
-  }
   const saveData = async () => {
-    const savedData = await instanceRef.current.save();
-    console.log(savedData);
+    setFLoading(true);
+    const timeoutId = setTimeout(async () => {
+      console.log(category);
+      var form = new FormData();
+      form.append("title", title);
+      form.append("meta", meta);
+      form.append("description", JSON.stringify(description));
+      form.append("category", JSON.stringify(category2));
+      form.append("user", token);
+      form.append("read_min", read_min);
+      form.append("slug", props.id);
+      if (
+        description !== undefined &&
+        title.length > 20 &&
+        meta.length > 20 &&
+        category2.length !== 0
+      ) {
+        axios
+          .post("http://127.0.0.1:8000/api/articles-create/", form, {
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `JWT ${token}`,
+            },
+          })
+          .then((res) => {
+            setFLoading(false);
+            window.location.href = `/articles`;
+          })
+          .catch((err) => {
+            console.log(err.response);
+            const Toast = Swal.mixin({
+              toast: true,
+              position: "top-end",
+              showConfirmButton: false,
+              timer: 2000,
+              timerProgressBar: true,
+              didOpen: (toast) => {
+                toast.addEventListener("mouseenter", Swal.stopTimer);
+                toast.addEventListener("mouseleave", Swal.resumeTimer);
+              },
+            });
+
+            Toast.fire({
+              icon: "error",
+              title: err.response.data.message,
+            });
+            setFLoading(false);
+          });
+      } else {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.addEventListener("mouseenter", Swal.stopTimer);
+            toast.addEventListener("mouseleave", Swal.resumeTimer);
+          },
+        });
+
+        Toast.fire({
+          icon: "error",
+          title: "Title, Meta, Description, & Category is Must!",
+        });
+        setFLoading(false);
+      }
+    }, 500);
+    return () => clearTimeout(timeoutId);
   };
 
-  const onReady = async () => {
-    // https://editorjs.io/configuration#editor-modifications-callback
-    console.log("Editor.js is ready to work!");
+  useEffect(() => {
+    console.log(post.length);
+    if (post.length > 0) {
+      handleEditPostPrevData();
+    }
+  }, [post.length]);
+  const handleEditPostPrevData = () => {
+    const timeoutId = setTimeout(async () => {
+      const category4 = [];
+      const read_min2 = [];
+      post &&
+        post.map((item) => {
+          setTitle(item.title);
+          setMeta(item.meta);
+          setDescription(JSON.parse(item.description));
+          // setRead_MinD(
+          //   read_min_options[
+          //     item.read_min == 1
+          //       ? 0
+          //       : item.read_min == 2
+          //         ? 1
+          //         : item.read_min == 3
+          //           ? 2
+          //           : item.read_min == 4
+          //             ? 3
+          //             : item.read_min == 5
+          //               ? 4
+          //               : item.read_min == 6
+          //                 ? 5
+          //                 : item.read_min == 7
+          //                   ? 6
+          //                   : item.read_min == 8
+          //                     ? 7
+          //                     : item.read_min == 9
+          //                       ? 8
+          //                       : item.read_min == 10
+          //                         ? 9
+          //                         : 1
+          //   ]
+          // );
+          read_min_options.map((item3, index4) => {
+            if (item.read_min == item3.value) {
+              read_min2.push(read_min_options[index4]);
+            }
+          });
+          console.log(read_min2);
+          setRead_MinD(read_min2);
+          item.category.map((item1, index2) => {
+            console.log(item1);
+            options.map((item2, index3) => {
+              // console.log(item2.value);
+              if (item1 == item2.value) {
+                category4.push(options[index3]);
+              }
+            });
+          });
+          console.log(category4);
+          setCategory(category4);
+        });
+      setLoading(false);
+    }, 500);
+    console.log(read_min_options[4]);
+    return () => clearTimeout(timeoutId);
   };
+
+  const handleTitleChange = async (event) => {
+    setTitle(
+      event.target.value && event.target.value && event.target.value
+        ? event.target.value
+        : ""
+    );
+  };
+  const handleMetaChange = async (event) => {
+    setMeta(
+      event.target.value && event.target.value && event.target.value
+        ? event.target.value
+        : ""
+    );
+  };
+  const handleDescriptionChange = async () => {
+    // console.log(event.target.value);
+    const savedData = await editorCore.current.save();
+    setDescription(savedData);
+  };
+  const read_min_options = [
+    { value: 1, label: "1 Minute" },
+    { value: 2, label: "2  Minute" },
+    { value: 3, label: "3  Minute" },
+    { value: 4, label: "4  Minute" },
+    { value: 5, label: "5  Minute" },
+    { value: 6, label: "6 Minute" },
+    { value: 7, label: "7 Minute" },
+    { value: 8, label: "8 Minute" },
+    { value: 9, label: "9 Minute" },
+    { value: 10, label: "10 Minute" },
+  ];
+  const options = [
+    { value: "Politics", label: "Politics" },
+    { value: "Business", label: "Business" },
+    { value: "Sports", label: "Sports" },
+    { value: "Travel", label: "Travel" },
+    { value: "Health", label: "Health" },
+    { value: "Style", label: "Style" },
+    { value: "Science", label: "Science" },
+    { value: "Technology", label: "Technology" },
+    { value: "Education", label: "Education" },
+    { value: "Entertainment", label: "Entertainment" },
+    { value: "Weather", label: "Weather" },
+  ];
+  const handleReadMinChange = (e) => {
+    if (e !== null) {
+      console.log(e.value);
+      const timeoutId = setTimeout(async () => {
+        setRead_Min(e.value);
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    }
+  };
+  const handleCategoryChange = (e) => {
+    console.log(e);
+    const timeoutId = setTimeout(async () => {
+      setCategory(e);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  };
+  useEffect(() => {
+    let category3 = [];
+    const timeoutId = setTimeout(async () => {
+      category &&
+        category.map((item, index) => {
+          category3.push(item.value);
+        });
+      console.log(category3);
+      setCategory2(category3);
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [category]);
 
   return (
     <React.Fragment>
-      <EditStoryNav
-        submitFunc={handleSave}
-        submitDraftFunc={submitDraft}
-        {...props}
-        data={props.data}
-        loading={loading}
-        floading={floading}
-        dloading={dloading}
-      />
-      <div style={{ minHeight: "100vh" }}>
-        <div className="block" style={{ marginTop: "5rem" }}>
-          <div className="create-title">
-            {width < 501 && (
-              <Link to={`/@sohaib`} className="help-footer-home-link">
-                <span>← Back to Article</span>
-              </Link>
-            )}
-            {/* <button
-              onClick={() => {
-                saveData();
-              }}
-            >
-              Save
-            </button> */}
-
-            <TextArea
-              // rows="3"
-              placeholder="Title (upto-150 characters)"
-              className="title-textbox font-title"
-              // id="title-textbox"
-              maxLength="150"
-              onChange={(e) => {
-                setTitle(e.target.value);
-              }}
-              value={title}
-            ></TextArea>
-            <span
-              className="write-text-counter"
-              style={{
-                color: title.length < 150 ? "#757575" : "red",
-                fontSize: "12px",
-              }}
-            >
-              {title.length}/150
-            </span>
-
-            <hr style={{ marginTop: "1rem", marginBottom: "1rem" }} />
-            <TextArea
-              // rows={meta === "" ? 1 : 3}
-              placeholder="Subtitle (`Meta`) (upto-200 characters)"
-              className="title-textbox font-sub"
-              // id="title-textbox1"
-              value={meta}
-              maxLength="200"
-              onChange={(e) => {
-                setMeta(e.target.value);
-              }}
-            ></TextArea>
-            <span
-              className="write-text-counter"
-              style={{
-                color: meta.length < 200 ? "#757575" : "red",
-                fontSize: "12px",
-              }}
-            >
-              {meta.length}/200
-            </span>
-            {/* <hr style={{ marginTop: "1rem", marginBottom: "1rem" }} /> */}
-            <hr style={{ marginTop: "1rem", marginBottom: "3rem" }} />
-            <div
-              className="editor-section"
-              style={{ cursor: "text", marginBottom: "6rem" }}
-            >
-              <ReactEditorJS
-                // instanceRef={(instance) => (instanceRef.current = instance)}
-                onInitialize={(instance) => (instanceRef.current = instance)}
-                tools={EDITOR_JS_TOOLS}
-                onReady={onReady}
-                holder="write-article-editor"
-                data={description}
-                onChange={() => handleSave()}
-              >
-                <div id="write-article-editor" />
-              </ReactEditorJS>
-
-              {/* <div className="create-title">
-                <hr style={{ marginTop: "2rem", marginBottom: "5rem" }} />
-              </div> */}
+      {loading == true ? (
+        <TailSpin
+          color="#000"
+          height={50}
+          width={50}
+          // timeout={3000}
+        />
+      ) : (
+        <>
+          {isEmpty ? (
+            <div className="home-page-bottom-posts">
+              <p>We couldn’t find any Posts.</p>
             </div>
-          </div>
-          {/* <div className="create-title">
+          ) : (
+            <>
+              {/* <EditStoryNav
+                submitFunc={saveData}
+                submitDraftFunc={submitDraft}
+                {...props}
+                // data={props.data}
+                loading={loading}
+                floading={floading}
+                dloading={dloading}
+              /> */}
+              <EditPostNav
+                // submitFunc={handleSave}
+                submitFunc={saveData}
+                submitDraftFunc={submitDraft}
+                loading={loading}
+                floading={floading}
+                dloading={dloading}
+              />
+              <div style={{ minHeight: "100vh" }}>
+                <div className="block" style={{ marginTop: "2rem" }}>
+                  <section className="posts-catogory-header">
+                    <h1 className="posts-header-text">Edit Article</h1>
+                    <span className="posts-divider"></span>
+                  </section>
+                  <div
+                    className="create-title"
+                    style={{ marginBottom: "2rem" }}
+                  >
+                    {width < 501 && (
+                      <Link
+                        to={`/article/${props.params.id}`}
+                        className="help-footer-home-link"
+                      >
+                        <span>← Back to Article</span>
+                      </Link>
+                    )}
+                    {/* <button
+                      onClick={() => {
+                        saveData();
+                      }}
+                    >
+                      Save
+                    </button> */}
+
+                    <TextArea
+                      // rows="3"
+                      placeholder="Title (upto-150 characters)"
+                      className="title-textbox font-title"
+                      // id="title-textbox"
+                      maxLength="150"
+                      onChange={(e) => {
+                        handleTitleChange(e.target.value);
+                      }}
+                      value={title}
+                    ></TextArea>
+                    <span
+                      className="write-text-counter"
+                      style={{
+                        color: title.length < 150 ? "#757575" : "red",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {title.length}/150
+                    </span>
+
+                    <hr style={{ marginTop: "1rem", marginBottom: "1rem" }} />
+                    <TextArea
+                      // rows={meta === "" ? 1 : 3}
+                      placeholder="Subtitle (`Meta`) (upto-200 characters)"
+                      className="title-textbox font-sub"
+                      // id="title-textbox1"
+                      value={meta}
+                      maxLength="200"
+                      onChange={(e) => {
+                        handleMetaChange(e.target.value);
+                      }}
+                    ></TextArea>
+                    <span
+                      className="write-text-counter"
+                      style={{
+                        color: meta.length < 200 ? "#757575" : "red",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {meta.length}/200
+                    </span>
+                    <hr style={{ marginTop: "1rem", marginBottom: "1rem" }} />
+                    <div
+                      className="editor-section"
+                      style={{ cursor: "text", marginBottom: "4rem" }}
+                    >
+                      <ReactEditorJS
+                        // instanceRef={(instance) => (instanceRef.current = instance)}
+                        onInitialize={handleInitialize}
+                        tools={EDITOR_JS_TOOLS}
+                        holder="write-article-editor"
+                        data={description}
+                        onChange={handleDescriptionChange}
+                        // onInitialize={(instance) => (instanceRef.current = instance)}
+                        // tools={EDITOR_JS_TOOLS}
+                        // onReady={onReady}
+                        // holder="write-article-editor"
+                        // onChange={() => handleSave()}
+                      >
+                        <div id="write-article-editor" />
+                      </ReactEditorJS>
+
+                      {/* <div className="create-title">
+                          <hr style={{ marginTop: "2rem", marginBottom: "5rem" }} />
+                        </div> */}
+                    </div>
+                    <hr style={{ marginTop: "1rem", marginBottom: "1rem" }} />
+                    <Select
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      defaultValue={category}
+                      placeholder={<div>Select Article Category!</div>}
+                      isMulti
+                      options={options}
+                      onChange={(e) => handleCategoryChange(e)}
+                    />
+                    <hr style={{ marginTop: "1rem", marginBottom: "1rem" }} />
+                    <Select
+                      closeMenuOnSelect={false}
+                      components={animatedComponents}
+                      defaultValue={read_minD}
+                      placeholder={<div>Select Total Reading Minutes!</div>}
+                      options={read_min_options}
+                      onChange={(e) => handleReadMinChange(e)}
+                      classNamePrefix="select"
+                      isClearable
+                    />
+                  </div>
+                  {/* <div className="create-title">
               <div className="row">
                 <p className="mx-auto story-desc-header">
                   Write your story by clicking below
                 </p>
               </div>
             </div> */}
-        </div>
-      </div>
-      <div style={{ borderTop: "3px solid #000" }}>
-        <Footer />
-      </div>
+                </div>
+              </div>
+              <div style={{ borderTop: "3px solid #000" }}>
+                <Footer />
+              </div>
+            </>
+          )}
+        </>
+      )}
     </React.Fragment>
   );
 };

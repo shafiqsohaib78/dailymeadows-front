@@ -198,7 +198,12 @@ const Articles = (props) => {
                                             type="button"
                                             class="btn btn-primary"
                                           >
-                                            Edit
+                                            <a
+                                              className="link"
+                                              href={`/edit/${item.slug}`}
+                                            >
+                                              Edit
+                                            </a>
                                           </button>
                                           <button
                                             type="button"

@@ -620,7 +620,7 @@
     display: none !important;
   }
 }
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 440px) {
   .mini-logo-create {
     display: none !important;
   }

@@ -6,7 +6,7 @@ import { TailSpin } from "react-loader-spinner";
 import { Link } from "gatsby";
 import { shallowEqual, useSelector } from "react-redux";
 
-const CreateStoryNav = (props) => {
+const EditPostNav = (props) => {
   const { username, isAuthenticated, full_name } = useSelector(
     (state) => ({
       full_name: state.user ? state.user.name : "",
@@ -230,7 +230,7 @@ const CreateStoryNav = (props) => {
                       : false
                   }
                 >
-                  <span className="">Publish</span>
+                  <span className="">Save & Publish</span>
                 </button>
               )}
             </div>
@@ -261,4 +261,4 @@ const CreateStoryNav = (props) => {
   );
 };
 
-export default CreateStoryNav;
+export default EditPostNav;
