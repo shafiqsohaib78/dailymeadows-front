@@ -231,6 +231,9 @@
 .drawer-hidden {
   height: 0px !important;
 }
+.edit-drawer-hidden {
+  height: 0px !important;
+}
 
 @media screen and (min-width: 1280px) {
   .navbar-main-search-icon-mob {
@@ -347,10 +350,8 @@
   .navbar-main-links-items {
     display: flex;
   }
-  
 }
 @media screen and (min-width: 701px) {
-  
   .navbar-main-more-option-icon-desk {
     max-width: 40px;
     display: block !important;
@@ -470,8 +471,7 @@
   .navbar-main-more-option {
     margin-right: 0.5rem;
   }
-  
-  
+
   .navbar-main-search-button-link {
     background-position: center 13px;
   }
@@ -504,7 +504,6 @@
   }
 }
 @media screen and (max-width: 700px) {
-
   .navbar-main-links-items {
     display: none;
   }
@@ -571,6 +570,15 @@
 }
 .drawer-visible {
   opacity: 0;
+  transform: translateY(100%) !important;
+}
+
+.edit-drawer-hidden {
+  opacity: 1;
+  transform: translateY(0) !important;
+}
+.edit-drawer-visible {
+  /* opacity: 0; */
   transform: translateY(100%) !important;
 }
 

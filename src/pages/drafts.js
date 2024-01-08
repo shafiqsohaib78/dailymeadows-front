@@ -153,7 +153,7 @@ const CatagoryPosts = (props) => {
                                   <div className="home-page-bottom-posts-container-inner">
                                     <div className="home-page-bottom-post-textual block">
                                       <a
-                                        href={`/drafts/${item.slug}`}
+                                        href={`/draft/${item.slug}`}
                                         className="link"
                                       >
                                         <h2 className="home-page-bottom-post-title">
@@ -216,7 +216,7 @@ const CatagoryPosts = (props) => {
                                       </div>
                                     </div>
                                     <a
-                                      href={`/@${item.username}/${item.slug}`}
+                                      href={`/draft/${item.slug}`}
                                       className="link"
                                     >
                                       {width > 550 && (

@@ -30,6 +30,13 @@
   box-shadow: none;
   outline: none;
 }
+/* #read-only-editor > .ce-block .ce-block--stretched > .ce-block__content {
+  position: relative;
+  max-width: none;
+  margin: 0 auto;
+  -webkit-transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease;
+} */
 #read-only-editor
   > .codex-editor
   .codex-editor__redactor
